@@ -496,59 +496,83 @@ function SelectGem() {
 }
 
 function HandleCastSkill(botPlayerHerosFullMana) {
-	console.log("botPlayerHerosFullMana: ", botPlayerHerosFullMana);
 	let seaSpirit = botPlayer.getHeroById('SEA_SPIRIT');
 	let airSpirit = botPlayer.getHeroById('AIR_SPIRIT');
 	let fireSpirit = botPlayer.getHeroById('FIRE_SPIRIT');
 	let enemyHerosAlive = enemyPlayer.getHerosAlive();
 	let target = { targetId: null, selectedGem: null, gemIndex: null, isTargetAllyOrNot: null };
-	if (fireSpirit != null && fireSpirit.isFullMana()) {
-		let skillDames = [];
-		var gemRed = grid.numberOfGemType(GemType.RED);
-		console.log("gemRed: ", gemRed);
-		for (let i = 0; i < enemyHerosAlive.length; i++) {
-			skillDames.push(enemyHerosAlive[i].attack + gemRed);
-			console.log("skillDame: ", skillDames);
-			console.log("element.hp: ", enemyHerosAlive[i].hp);
-			if (enemyHerosAlive[i].isFullMana()) {
-				if (skillDames[i] >= enemyHerosAlive[i].hp) {
-					target.targetId = enemyHerosAlive[i].id.toString();
-					SendCastSkill(fireSpirit, targetHero);
-					return;
-				}
-			}
-			else {
-				if (skillDames[i] >= enemyHerosAlive[i].hp) {
-					target.targetId = enemyHerosAlive[i].id.toString();
-					SendCastSkill(fireSpirit, target);
-					return;
-				}
-			}
-		}
-		// đoạn này có thể lấy thêm thông tin của đối thủ để quyết định có nên dùng chiêu hay không
-		var indexOfBushDameMax = skillDames.indexOf(Math.max(...skillDames));
-		target.targetId = enemyHerosAlive[indexOfBushDameMax].id.toString();
-		SendCastSkill(fireSpirit, target);
-	}
-	else if (seaSpirit != null) {
-		//tạm thời target airSpirit nếu airSpirit còn sống
-		//nếu airSpirit chết thì target vào bản thân, vì fireSpirit đánh theo dame của đối thủ
-		//em đang cải tiến đoạn này
-		if (airSpirit != null ) {
+	if (seaSpirit && seaSpirit.isFullMana()) {
+		if (airSpirit) {
 			target.targetId = airSpirit.id.toString();
 		} else {
 			target.targetId = seaSpirit.id.toString();
 		}
 		SendCastSkill(seaSpirit, target);
-	} else if (airSpirit != null) {
-		// cải tiến khả năng chọn gem khi dùng skill
-		SendCastSkill(botPlayerHerosFullMana[0]);
-	} else {
-		SendCastSkill(botPlayerHerosFullMana[0]);
+		return;
 	}
+	else if (fireSpirit && fireSpirit.isFullMana()) {
+		let gemRed = grid.numberOfGemType(GemType.RED);
+		let enemyHeroCanBeKilleds = [];
+		let enemyHeroCanBeKilledAndIsFullManas = [];
+		let enemyIsFullManas = enemyHerosAlive.filter(x => x.isFullMana());
+		for (let i = 0; i < enemyIsFullManas.length; i++) {
+			let skillDames = enemyIsFullManas[i].attack + gemRed;
+			if (skillDames >= enemyIsFullManas[i].hp) {
+				enemyHeroCanBeKilledAndIsFullManas.push(enemyIsFullManas[i]);
+			}
+		}
+		if (enemyHeroCanBeKilledAndIsFullManas.length > 0){
+			let enemyHeroId = GetEnemyHeroAHasAttackMax(enemyHeroCanBeKilledAndIsFullManas, enemyHeroCanBeKilledAndIsFullManas.length);
+			target.targetId = enemyHeroId.toString();
+			SendCastSkill(fireSpirit, target);
+			return;
+		}
+		else {
+			for (let i = 0; i < enemyHerosAlive.length; i++) {
+				let skillDames = enemyHerosAlive[i].attack + gemRed;
+				if (skillDames >= enemyHerosAlive[i].hp)
+					enemyHeroCanBeKilleds.push(enemyHerosAlive[i]);
+			}
+			if (enemyHeroCanBeKilleds.length > 0) {
+				let enemyHeroId = GetEnemyHeroAHasAttackMax(enemyHeroCanBeKilleds, enemyHeroCanBeKilleds.length);
+				target.targetId = enemyHeroId.toString();
+				SendCastSkill(fireSpirit, target);
+				return;
+			}
+			else {
+				if (enemyHerosAlive && enemyHerosAlive.length > 0) {
+					let enemyHeroId = GetEnemyHeroAHasAttackMax(enemyHerosAlive, enemyHerosAlive.length);
+					target.targetId = enemyHeroId.toString();
+					SendCastSkill(fireSpirit, target);
+					return;
+				}
+			}
+		}
+	}
+	else if (airSpirit && airSpirit.isFullMana()) {
+		// cải tiến khả năng chọn gem khi dùng skill
+		// to do : select gem va vi tri nhieu gem co loi hoac nhieu kiem
+		SendCastSkill(botPlayerHerosFullMana[0]);
+		return;
+	}
+	SendCastSkill(botPlayerHerosFullMana[0]);
 }
 
-//Handle Swap Gems 
+function GetEnemyHeroAHasAttackMax(enemyHeros, n) {
+	let maxDame = enemyHeros[0].attack;
+	let enemyHeroId = enemyHeros[0].id;
+    for (let i = 1; i < n; i++)
+        if (maxDame < enemyHeros[i].attack) {
+			maxDame = enemyHeros[i].attack;
+			enemyHeroId = enemyHeros[i].id;
+		}
+    return enemyHeroId;
+}
+
+// Handle Swap Gems : Lam sao swap gem phu hop khong uu tien an kiem, khi cac enemy chet thi uu tien an gem cua nhung con tuong con song,
+// neu khong co gem nao phu hop uu tien an gem cua doi thu de pha, neu khong co bat ky truong hop nao ben tren thi an ngau nhien
+// truong hop doi voi FIRE_SPIRIT uu tien an gem tim, khong uu tien an gem do, neu truong hop co gem uu tien cho cac tuong khac thi uu tien an gem phu hop cho tuong khac
+// roi moi den Fire_spririt
 
 // function HandleSwapGems() {
 // 	var listMatchGem = grid.suggestMatch();
