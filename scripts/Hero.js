@@ -21,78 +21,77 @@ const HeroIdEnum = {
     SNAKE:105,
     GIANT_SNAKE:106
 };
-  
 
 class Hero {
-    constructor(objHero) {
-        this.objHero = objHero;
-        this.playerId = objHero.getInt("playerId");
-        this.id = objHero.getUtfString("id");
-        //this.name = id.name();
-        this.attack = objHero.getInt("attack");
-        this.hp = objHero.getInt("hp");
-        this.mana = objHero.getInt("mana");
-        this.maxMana = objHero.getInt("maxMana");
+  constructor(objHero) {
+    this.objHero = objHero;
+    this.playerId = objHero.getInt("playerId");
+    this.id = objHero.getUtfString("id");
+    //this.name = id.name();
+    this.attack = objHero.getInt("attack");
+    this.hp = objHero.getInt("hp");
+    this.mana = objHero.getInt("mana");
+    this.maxMana = objHero.getInt("maxMana");
 
-        this.gemTypes = [];
-        this.gems = [];
-        let arrGemTypes = objHero.getSFSArray("gemTypes");
-        for (let i = 0; i < arrGemTypes.size(); i++) {
-            const gemName = arrGemTypes.getUtfString(i);
-            this.gemTypes.push(gemName);
-            this.gems.push(GemType[gemName]);
-        }
+    this.gemTypes = [];
+    this.gems = [];
+    let arrGemTypes = objHero.getSFSArray("gemTypes");
+    for (let i = 0; i < arrGemTypes.size(); i++) {
+      const gemName = arrGemTypes.getUtfString(i);
+      this.gemTypes.push(gemName);
+      this.gems.push(GemType[gemName]);
     }
+  }
 
-    updateHero(objHero) {
-        this.attack = objHero.getInt("attack");
-        this.hp = objHero.getInt("hp");
-        this.mana = objHero.getInt("mana");
-        this.maxMana = objHero.getInt("maxMana");
-    }
+  updateHero(objHero) {
+    this.attack = objHero.getInt("attack");
+    this.hp = objHero.getInt("hp");
+    this.mana = objHero.getInt("mana");
+    this.maxMana = objHero.getInt("maxMana");
+  }
 
-    isAlive() {
-        return this.hp > 0;
-    }
+  isAlive() {
+    return this.hp > 0;
+  }
 
-    isFullMana() {
-        return this.mana >= this.maxMana;
-    }
+  isFullMana() {
+    return this.mana >= this.maxMana;
+  }
 
-    isHeroSelfSkill() {
-        return HeroIdEnum.SEA_SPIRIT == this.id;
-    }
+  isHeroSelfSkill() {
+    return HeroIdEnum.SEA_SPIRIT == this.id;
+  }
 
-    couldTakeMana(type) {
-        return this.isAcceptManaType(type) && !this.isFullMana();
-    }
+  couldTakeMana(type) {
+    return this.isAcceptManaType(type) && !this.isFullMana();
+  }
 
-    isAcceptManaType(type) {
-        return this.gems.includes(type);
-    }
+  isAcceptManaType(type) {
+    return this.gems.includes(type);
+  }
 
-    getMaxManaCouldTake() {
-        return this.maxMana - this.mana;
-    }
+  getMaxManaCouldTake() {
+    return this.maxMana - this.mana;
+  }
 
-    takeDamge(damge) {
-        this.hp = this.hp - damge;
-    }
+  takeDamge(damge) {
+    this.hp = this.hp - damge;
+  }
 
-    takeMana(value) {
-        this.mana += value;
-    }
+  takeMana(value) {
+    this.mana += value;
+  }
 
-    clone() {
-        const cloned = new Hero(this.objHero);
-        cloned.playerId = this.playerId;
-        cloned.id = this.id;
-        cloned.attack = this.attack;
-        cloned.hp = this.hp;
-        cloned.mana = this.mana;
-        cloned.maxMana = this.maxMana;
-        cloned.gemTypes = this.gemTypes;
-        cloned.gems = this.gems;
-        return cloned;
-    }
+  clone() {
+    const cloned = new Hero(this.objHero);
+    cloned.playerId = this.playerId;
+    cloned.id = this.id;
+    cloned.attack = this.attack;
+    cloned.hp = this.hp;
+    cloned.mana = this.mana;
+    cloned.maxMana = this.maxMana;
+    cloned.gemTypes = this.gemTypes;
+    cloned.gems = this.gems;
+    return cloned;
+  }
 }
