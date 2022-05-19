@@ -394,6 +394,11 @@ function StartTurn(param) {
 						}
 						break;
 					}
+					case "FIRE_SPIRIT":{
+						const enemyHero = enemyPlayer.playerMostAttack();
+							SendCastSkill(heroFullMana,{targetId:enemyHero.id.toString()});
+							break;
+					}
 					
 					default:
 						SendCastSkill(heroFullMana);

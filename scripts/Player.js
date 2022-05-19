@@ -24,6 +24,13 @@ class Player {
     return arr;
   }
 
+  playerMostAttack(){
+    const heros = this.getHerosAlive();
+    return heros.reduce((preHero,curHero)=>{
+      return preHero.attack > curHero.attack ? preHero : curHero;
+    },heros[0]);
+  }
+
   anyHeroFullMana() {
     let arr = this.heroes.filter((hero) => hero.isAlive() && hero.isFullMana());
 
