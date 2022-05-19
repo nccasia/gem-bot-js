@@ -34,8 +34,9 @@ var enemyPlayer;
 var currentPlayerId;
 var grid;
 
-const username = "";
-const token = "bot";
+const username = "hiep.dohoang";
+const token =
+  "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJoaWVwLmRvaG9hbmciLCJhdXRoIjoiUk9MRV9VU0VSIiwiTEFTVF9MT0dJTl9USU1FIjoxNjUyODc4NTkzNzg4LCJleHAiOjE2NTQ2Nzg1OTN9.oyh6GXmsOWX8MZOluMxXgsvS0uyvEJ0nhoeFqjITxCOXhaYA8Ehzdm0PmkQ0IrqxGJZaAAAIZ55lp5FkuG9IoA";
 var visualizer = new Visualizer({ el: '#visual' });
 var params = window.params;
 var strategy = window.strategy;
@@ -334,6 +335,27 @@ function SendFinishTurn(isFirstTurn) {
 	SendExtensionRequest(FINISH_TURN, data);
 
 }
+function findIndexForNefia(){
+	let gems = grid.gems;
+	console.log(gems);
+}
+
+function getGemArea(index){
+	let a = grid.gems.slice(index-9,index-6);
+	let area = grid.gems.map((gem, i)=>{
+
+	})
+}
+
+function canGetExtraturn(){
+	const listMatch = grid.suggestMatch();
+	if(listMatch.length===0)
+		return false;
+	else {
+		const matchSizeThanFour = listMatch.find(match => match.sizeMatch>4);
+		if(matchSizeThanFour) return true;
+	}
+}
 
 
 function StartTurn(param) {
@@ -350,13 +372,36 @@ function StartTurn(param) {
 			strategy.playTurn();
 			return;
 		}
-		let heroFullMana = botPlayer.anyHeroFullMana();
-		if (heroFullMana != null) {
-			SendCastSkill(heroFullMana)
-		} else {
-			SendSwapGem()
-		}
 
+		if(canGetExtraturn()){
+			console.log(canGetExtraturn(),'can get')
+			SendSwapGem();
+		}
+		else{
+			// findIndexForNefia();
+			// console.log(botPlayer.getOwnGemType(),'hiep')
+			// console.log(botPlayer.getRecommendGemType(),'hiep1')
+			let heroFullMana = botPlayer.anyHeroFullMana();
+			if (heroFullMana != null) {
+				switch (heroFullMana.id) {
+					case "SEA_SPIRIT":{
+						const count = botPlayer.getCountHerosAlive();
+						if(count>1){
+							const id = botPlayer.secondHeroAlive().id.toString();
+							SendCastSkill(heroFullMana,{targetId:id});
+						} else {
+							SendCastSkill(heroFullMana);
+						}
+						break;
+					}
+					
+					default:
+						SendCastSkill(heroFullMana);
+				}
+			} else {
+				SendSwapGem()
+			}
+		}
 	}, delaySwapGem);
 }
 
