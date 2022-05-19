@@ -14,6 +14,10 @@ class Grid {
         this.myHeroGemType = gemTypes;
     }
 
+    numberOfGemType(gemType) {
+        return this.gems.filter(gem => gem.type === gemType).length;
+    }
+
     updateGems(gemsCode, gemModifiers) {
         this.gems = [];
         this.gemeCode = gemsCode;

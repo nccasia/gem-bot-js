@@ -34,8 +34,8 @@ var enemyPlayer;
 var currentPlayerId;
 var grid;
 
-const username = "";
-const token = "bot";
+const username = "phi.gasbot";
+const token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJodXkuYnVpZG9hbnF1YW5nIiwiYXV0aCI6IlJPTEVfVVNFUiIsIkxBU1RfTE9HSU5fVElNRSI6MTY1Mjg1ODk3MTc5NSwiZXhwIjoxNjU0NjU4OTcxfQ.mQGxoL8T2ZxJrVpLEluNm_QvGQg1b0oS5WcHVYOhWZeph1X8dDDv8VnsOSNgOB1xXigcf_FoT6cDyWBDZ7S7yw";
 var visualizer = new Visualizer({ el: '#visual' });
 var params = window.params;
 var strategy = window.strategy;
@@ -350,11 +350,12 @@ function StartTurn(param) {
 			strategy.playTurn();
 			return;
 		}
-		let heroFullMana = botPlayer.anyHeroFullMana();
-		if (heroFullMana != null) {
-			SendCastSkill(heroFullMana)
+		let botPlayerHerosFullMana = botPlayer.allHeroFullMana();
+		if (botPlayerHerosFullMana != null) {
+			HandleCastSkill(botPlayerHerosFullMana);
 		} else {
-			SendSwapGem()
+			//var recommendSwapGemIndex = HandleSwapGems();
+			SendSwapGem();
 		}
 
 	}, delaySwapGem);
@@ -368,7 +369,8 @@ function isBotTurn() {
 
 function SendCastSkill(heroCastSkill, { targetId, selectedGem, gemIndex, isTargetAllyOrNot } = {}) {
 	var data = new SFS2X.SFSObject();
-
+	console.log("heroCastSkill: ", heroCastSkill);
+	console.log("targetId:  ", targetId);
 	data.putUtfString("casterId", heroCastSkill.id.toString());
 	if(targetId) {
 		data.putUtfString("targetId", targetId);
@@ -396,14 +398,13 @@ function SendCastSkill(heroCastSkill, { targetId, selectedGem, gemIndex, isTarge
 	}
 	log("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + USE_SKILL + "|Hero cast skill: " + heroCastSkill.name);
 	trace("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + USE_SKILL + "|Hero cast skill: " + heroCastSkill.name);
-
+	console.log("dataCastSkill: ", data);
 	SendExtensionRequest(USE_SKILL, data);
 
 }
 
 function SendSwapGem(swap) {
-	let indexSwap = swap ? swap.getIndexSwapGem() :  grid.recommendSwapGem();
-
+	let indexSwap = swap ?? grid.recommendSwapGem();
 	log("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + SWAP_GEM + "|index1: " + indexSwap[0] + " index2: " + indexSwap[1]);
 	trace("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + SWAP_GEM + "|index1: " + indexSwap[0] + " index2: " + indexSwap[1]);
 
@@ -421,7 +422,6 @@ function SwapGem(param) {
 	if (!isValidSwap) {
 		return;
 	}
-
 	HandleGems(param);
 }
 
@@ -447,6 +447,7 @@ function HandleGems(paramz) {
 	let gemCode = lastSnapshot.getSFSArray("gems");
 	let gemModifiers = lastSnapshot.getSFSArray("gemModifiers");
 
+	console.log("gemCode: ", gemCode);
 	console.log("gemModifiers : ", gemModifiers);
 
 	grid.updateGems(gemCode, gemModifiers);
@@ -493,3 +494,131 @@ function SelectGem() {
 
 	return gemSelect;
 }
+
+function HandleCastSkill(botPlayerHerosFullMana) {
+	console.log("botPlayerHerosFullMana: ", botPlayerHerosFullMana);
+	let seaSpirit = botPlayer.getHeroById('SEA_SPIRIT');
+	let airSpirit = botPlayer.getHeroById('AIR_SPIRIT');
+	let fireSpirit = botPlayer.getHeroById('FIRE_SPIRIT');
+	let enemyHerosAlive = enemyPlayer.getHerosAlive();
+	let target = { targetId: null, selectedGem: null, gemIndex: null, isTargetAllyOrNot: null };
+	if (fireSpirit != null && fireSpirit.isFullMana()) {
+		let skillDames = [];
+		var gemRed = grid.numberOfGemType(GemType.RED);
+		console.log("gemRed: ", gemRed);
+		for (let i = 0; i < enemyHerosAlive.length; i++) {
+			skillDames.push(enemyHerosAlive[i].attack + gemRed);
+			console.log("skillDame: ", skillDames);
+			console.log("element.hp: ", enemyHerosAlive[i].hp);
+			if (enemyHerosAlive[i].isFullMana()) {
+				if (skillDames[i] >= enemyHerosAlive[i].hp) {
+					target.targetId = enemyHerosAlive[i].id.toString();
+					SendCastSkill(fireSpirit, targetHero);
+					return;
+				}
+			}
+			else {
+				if (skillDames[i] >= enemyHerosAlive[i].hp) {
+					target.targetId = enemyHerosAlive[i].id.toString();
+					SendCastSkill(fireSpirit, target);
+					return;
+				}
+			}
+		}
+		// đoạn này có thể lấy thêm thông tin của đối thủ để quyết định có nên dùng chiêu hay không
+		var indexOfBushDameMax = skillDames.indexOf(Math.max(...skillDames));
+		target.targetId = enemyHerosAlive[indexOfBushDameMax].id.toString();
+		SendCastSkill(fireSpirit, target);
+	}
+	else if (seaSpirit != null) {
+		//tạm thời target airSpirit nếu airSpirit còn sống
+		//nếu airSpirit chết thì target vào bản thân, vì fireSpirit đánh theo dame của đối thủ
+		//em đang cải tiến đoạn này
+		if (airSpirit != null ) {
+			target.targetId = airSpirit.id.toString();
+		} else {
+			target.targetId = seaSpirit.id.toString();
+		}
+		SendCastSkill(seaSpirit, target);
+	} else if (airSpirit != null) {
+		// cải tiến khả năng chọn gem khi dùng skill
+		SendCastSkill(botPlayerHerosFullMana[0]);
+	} else {
+		SendCastSkill(botPlayerHerosFullMana[0]);
+	}
+}
+
+//Handle Swap Gems 
+
+// function HandleSwapGems() {
+// 	var listMatchGem = grid.suggestMatch();
+// 	let seaSpirit = botPlayer.getHeroById('SEA_SPIRIT');
+// 	let airSpirit = botPlayer.getHeroById('AIR_SPIRIT');
+// 	let fireSpirit = botPlayer.getHeroById('FIRE_SPIRIT');
+// 	let enemyHerosAlive = enemyPlayer.getHerosAlive();
+// 	let botGemsType = botPlayer.getRecommendGemType();
+// 	let enemyGemsType = enemyPlayer.getRecommendGemType();
+
+// 	let matchGemSizeThanFour = listMatchGem.filter(gemMatch => gemMatch.sizeMatch > 4);
+// 	if (matchGemSizeThanFour) {
+// 		return matchGemSizeThanFour.getIndexSwapGem();
+// 	}
+
+// 	let matchGemSizeThanThree = listMatchGem.find(gemMatch => gemMatch.sizeMatch > 3);
+	
+// 	if (matchGemSizeThanThree) {
+// 		return matchGemSizeThanThree.getIndexSwapGem();
+// 	}
+// }
+
+// function recommendSwapGemByGemType(gemType = null) {
+// 	let listMatchGem = this.suggestMatch();
+
+// 	if (gemType == null) {
+// 		recommendSwapGem();
+// 	}
+
+// 	let matchGemByType = listMatchGem.filter(gem => gem.type == gemType);
+
+// 	if (matchGemByType) {
+// 		return findGemByQuantity(matchGemByType);
+// 	}
+
+// 	return listMatchGem[0].getIndexSwapGem();
+// }
+
+// function findGemByQuantity(listMatchGem) {
+	
+// 	if (listMatchGem.length === 0) {
+// 		return [-1, -1];
+// 	}
+
+// 	let matchGemSizeThanFour = listMatchGem.find(gemMatch => gemMatch.sizeMatch > 4);
+
+// 	if (matchGemSizeThanFour) {
+// 		return matchGemSizeThanFour.getIndexSwapGem();
+// 	}
+
+// 	let matchGemSizeThanThree = listMatchGem.find(gemMatch => gemMatch.sizeMatch > 3);
+	
+// 	if (matchGemSizeThanThree) {
+// 		return matchGemSizeThanThree.getIndexSwapGem();
+// 	}
+
+// 	let matchGemSizeThanTwo = listMatchGem.find(gemMatch => gemMatch.sizeMatch > 2);
+
+// 	if (matchGemSizeThanTwo) {
+// 		return matchGemSizeThanTwo.getIndexSwapGem();
+// 	}
+// 	return null;
+// }
+
+// function checkGemEnemy(listMatchGem) {
+// 	let enemyHerosAlive = enemyPlayer.getHerosAlive();
+// 	enemyHerosAlive.forEach(element => {
+// 		let matchGemByType = listMatchGem.find(gem => element.gemTypes.includes(gem.type));
+// 		if (matchGemByType) {
+// 			return matchGemByType.getIndexSwapGem();
+// 		}
+// 	});
+// }

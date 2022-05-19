@@ -16,8 +16,8 @@ class Player
     getHerosAlive() {
         return this.heroes.filter(hero => hero.isAlive());
     }
-    
 
+    
     getCastableHeros() {
         let arr = this.heroes.filter(hero => hero.isAlive() && hero.isFullMana());
         return arr;
@@ -50,6 +50,17 @@ class Player
         }        
 
         return this.heroGemType;
+    }
+    getHeroById(id) {
+        let arr = this.getHerosAlive().filter(hero => hero.id === id);
+        let hero = arr != null && arr != undefined && arr.length > 0 ? arr[0] : null;
+        return hero;
+    }
+
+
+    allHeroFullMana() {
+        let heros = this.heroes.filter(hero => hero.isAlive() && hero.isFullMana());
+        return heros != null && heros != undefined && heros.length > 0 ? heros : null;
     }
 
     firstAliveHeroCouldReceiveMana(type) {
