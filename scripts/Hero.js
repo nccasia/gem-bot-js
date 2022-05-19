@@ -1,26 +1,25 @@
 const HeroIdEnum = {
-  THUNDER_GOD: 0, //Zues
-  MONK: 1, //Orthur
-  AIR_SPIRIT: 2, //Nefia
-  SEA_GOD: 3, //Magni
-  MERMAID: 4, //Poko
-  SEA_SPIRIT: "SEA_SPIRIT", // TERRA
-  FIRE_SPIRIT: 6, //Sigmund
-  CERBERUS: 7, //CERBERUS
-  DISPATER: 8, // FATE
-  ELIZAH: 9, //Egypt queen
-  SKELETON: 100, //Skeleton
-
-  TALOS: 10,
-  MONKEY: 11,
-  GUTS: 12,
-
-  SPIDER: 101,
-  WOLF: 102,
-  BAT: 103,
-  BERSERKER: 104,
-  SNAKE: 105,
-  GIANT_SNAKE: 106,
+    THUNDER_GOD : 0,
+    MONK : 1,
+    AIR_SPIRIT : 2,
+    SEA_GOD : 3,
+    MERMAID : 4,
+    SEA_SPIRIT : 'SEA_SPIRIT',
+    FIRE_SPIRIT : 6,
+    CERBERUS : 7,
+    DISPATER : 8,
+    ELIZAH : 9,
+    TALOS : 10,
+    MONKEY:11,
+    GUTS:12,
+    
+    SKELETON : 100,
+    SPIDER:101,
+    WOLF:102,
+    BAT:103,
+    BERSERKER:104,
+    SNAKE:105,
+    GIANT_SNAKE:106
 };
 
 class Hero {
