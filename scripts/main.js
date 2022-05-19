@@ -35,7 +35,7 @@ var currentPlayerId;
 var grid;
 
 const username = "phi.lekim";
-const token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGkubGVraW0iLCJhdXRoIjoiUk9MRV9VU0VSIiwiTEFTVF9MT0dJTl9USU1FIjoxNjUyNzk3OTY3Nzc0LCJleHAiOjE2NTI4ODQzNjd9.3iWXGJ21QJnkPqiXgaS770axFDImS4PMgmPWRyxpNovfr0s4XeYiwQhxy8hyHWrtOw58BoDBjJsmeNe6A_FDsw";
+const token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGkubGVraW0iLCJhdXRoIjoiUk9MRV9VU0VSIiwiTEFTVF9MT0dJTl9USU1FIjoxNjUyOTM1NzY2ODkwLCJleHAiOjE2NTQ3MzU3NjZ9.mB4PLBmNsyNXQN-ofa0UfWeulpe_XN_w_MmJKkxdRp_hXCBN0-r9UoIThDanpobZbeGDCQayN3yjlFGeEJbLRg";
 var visualizer = new Visualizer({ el: '#visual' });
 var params = window.params;
 var strategy = window.strategy;
