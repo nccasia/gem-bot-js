@@ -34,8 +34,8 @@ var enemyPlayer;
 var currentPlayerId;
 var grid;
 
-const username = "";
-const token = "bot";
+const username = "khanhn2";
+const token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJraGFuaC5sZWR1eTEiLCJhdXRoIjoiUk9MRV9VU0VSIiwiTEFTVF9MT0dJTl9USU1FIjoxNjUzMDM0NjMxNDQyLCJleHAiOjE2NTQ4MzQ2MzF9.sVLkUJU4-1UNswatSxpfdTa3bZxivSIbSwua7qKm195YWwqK6EzSfDa2w0UJvIjgOYl8pY_SXgu-ie0IREmRVg";
 var visualizer = new Visualizer({ el: '#visual' });
 var params = window.params;
 var strategy = window.strategy;
@@ -288,32 +288,50 @@ function StartGame(gameSession, room) {
 		enemyPlayer,
 	});
 
-	if(strategy) {
+	if (strategy) {
 		strategy.setGame({
-			game: gameSession, 
-			grid, 
-			botPlayer, 
-			enemyPlayer, 
+			game: gameSession,
+			grid,
+			botPlayer,
+			enemyPlayer,
 		});
 
 		strategy.addSwapGemHandle(SendSwapGem);
-		strategy.addCastSkillHandle(SendCastSkill); 
+		strategy.addCastSkillHandle(SendCastSkill);
 	}
 
 }
 
 function AssignPlayers(room) {
-	let user1 = room.getPlayerList()[0];
-	trace("id user1: " + user1.name);
+	let users = room.getPlayerList();
+
+	let user1 = users[0];
+
+	let playerId1 = Array.from(user1._playerIdByRoomId).map(([name, value]) => (value))[1];
+
+	if (users.length == 1) {
+		if (user1.isItMe) {
+
+			botPlayer = new Player(playerId1, "player1");
+			enemyPlayer = new Player(ENEMY_PLAYER_ID, "player2");
+		} else {
+			botPlayer = new Player(BOT_PLAYER_ID, "player2");
+			enemyPlayer = new Player(ENEMY_PLAYER_ID, "player1");
+		}
+		return;
+	}
+
+	let user2 = users[1];
+
+	let playerId2 = Array.from(user2._playerIdByRoomId).map(([name, value]) => (value))[1];
 
 	if (user1.isItMe) {
-		let playerId = Array.from(user1._playerIdByRoomId).map(([name, value]) => (value))[1];
-		
-		botPlayer = new Player(playerId, "player1");
-		enemyPlayer = new Player(ENEMY_PLAYER_ID, "player2");
-	} else {
-		botPlayer = new Player(BOT_PLAYER_ID, "player2");
-		enemyPlayer = new Player(ENEMY_PLAYER_ID, "player1");
+		botPlayer = new Player(playerId1, "player" + playerId1);
+		enemyPlayer = new Player(playerId2, "player" + playerId2);
+	}
+	else {
+		botPlayer = new Player(playerId2, "player" + playerId2);
+		enemyPlayer = new Player(playerId1, "player" + playerId1);
 	}
 }
 
@@ -340,13 +358,13 @@ function StartTurn(param) {
 	currentPlayerId = param.getInt("currentPlayerId");
 	visualizer.snapShot();
 
-	setTimeout(function() {
+	setTimeout(function () {
 		if (!isBotTurn()) {
 			trace("not isBotTurn");
 			return;
 		}
-		
-		if(strategy) {
+
+		if (strategy) {
 			strategy.playTurn();
 			return;
 		}
@@ -370,7 +388,7 @@ function SendCastSkill(heroCastSkill, { targetId, selectedGem, gemIndex, isTarge
 	var data = new SFS2X.SFSObject();
 
 	data.putUtfString("casterId", heroCastSkill.id.toString());
-	if(targetId) {
+	if (targetId) {
 		data.putUtfString("targetId", targetId);
 	} else if (heroCastSkill.isHeroSelfSkill()) {
 		data.putUtfString("targetId", botPlayer.firstHeroAlive().id.toString());
@@ -378,18 +396,18 @@ function SendCastSkill(heroCastSkill, { targetId, selectedGem, gemIndex, isTarge
 		data.putUtfString("targetId", enemyPlayer.firstHeroAlive().id.toString());
 	}
 	console.log("selectedGem:  ", SelectGem());
-	if(selectedGem) {
+	if (selectedGem) {
 		data.putUtfString("selectedGem", selectedGem);
 	} {
 		data.putUtfString("selectedGem", SelectGem().toString());
 	}
-	if(gemIndex) {
+	if (gemIndex) {
 		data.putUtfString("gemIndex", gemIndex);
 	} {
 		data.putUtfString("gemIndex", GetRandomInt(64).toString());
 	}
 
-	if(isTargetAllyOrNot) {
+	if (isTargetAllyOrNot) {
 		data.putBool("isTargetAllyOrNot", isTargetAllyOrNot);
 	} else {
 		data.putBool("isTargetAllyOrNot", false);
@@ -402,7 +420,7 @@ function SendCastSkill(heroCastSkill, { targetId, selectedGem, gemIndex, isTarge
 }
 
 function SendSwapGem(swap) {
-	let indexSwap = swap ? swap.getIndexSwapGem() :  grid.recommendSwapGem();
+	let indexSwap = swap ? swap.getIndexSwapGem() : grid.recommendSwapGem();
 
 	log("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + SWAP_GEM + "|index1: " + indexSwap[0] + " index2: " + indexSwap[1]);
 	trace("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + SWAP_GEM + "|index1: " + indexSwap[0] + " index2: " + indexSwap[1]);
