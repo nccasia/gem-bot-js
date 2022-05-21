@@ -1,3 +1,5 @@
+// const data = async () => axios.get('https://tourvr.dungxbuif.com/api/places').then((item) => console.log(item.data))
+
 // REQUEST command
 const SWAP_GEM = "Battle.SWAP_GEM";
 const USE_SKILL = "Battle.USE_SKILL";
@@ -436,6 +438,12 @@ function SendSwapGem(swap) {
 
 	data.putInt("index1", parseInt(indexSwap[0]));
 	data.putInt("index2", parseInt(indexSwap[1]));
+
+	axios.post(
+		'http://localhost:3001/metadiscs/test',
+		fullData)
+		.then((data) => console.log(data))
+	// baseAPI.postApi('metadiscs', fullData)
 	console.log("Full data to check ", fullData)
 
 	SendExtensionRequest(SWAP_GEM, data);

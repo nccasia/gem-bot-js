@@ -1,188 +1,212 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="author" content="Bax">
-	<title>SmartFoxServer 2X | Connector</title>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Bax" />
+    <title>SmartFoxServer 2X | Connector</title>
 
-	<!-- Reset styles -->
-	<link href="css/reset.css" rel="stylesheet" type="text/css" />
+    <!-- Reset styles -->
+    <link href="css/reset.css" rel="stylesheet" type="text/css" />
 
-	<!-- Set custom styles -->
-	<link href="css/main.css" rel="stylesheet" type="text/css" />
+    <!-- Set custom styles -->
+    <link href="css/main.css" rel="stylesheet" type="text/css" />
 
-	<!-- Load SFS2X JS API -->
-	<script type="text/javascript" src="libs/sfs2x-api-1.7.11.js"></script>
+    <!-- Load SFS2X JS API -->
+    <script type="text/javascript" src="libs/sfs2x-api-1.7.11.js"></script>
 
-	<script src="scripts/Player.js"></script>
-	<script src="scripts/Gem.js"></script>
-	<script src="scripts/GemSwapInfo.js"></script>
-	<script src="scripts/Grid.js"></script>
-	<script src="scripts/Hero.js"></script>
-	<script src="scripts/Pair.js"></script>
-	<script src="scripts/Visualizer.js"></script>
+    <script src="scripts/Player.js"></script>
+    <script src="scripts/Gem.js"></script>
+    <script src="scripts/GemSwapInfo.js"></script>
+    <script src="scripts/Grid.js"></script>
+    <script src="scripts/Hero.js"></script>
+    <script src="scripts/Pair.js"></script>
+    <script src="scripts/Visualizer.js"></script>
 
-	<script src="strategies/AotStrategy/AotStrategy.js"></script>
-</head>
+    <script src="strategies/AotStrategy/AotStrategy.js"></script>
+  </head>
 
-<body>
-	<div id="header" class="group">
-		<img id="logo" src="images/logo.png"/>		
-	</div>
-	<div id="main">
-		<div id="controls">
-			<!--<input type="text" id="addressIn" placeholder="Enter address" value="172.16.100.112:8080" readonly />
+  <body>
+    <div id="header" class="group">
+      <img id="logo" src="images/logo.png" />
+    </div>
+    <div id="main">
+      <div id="controls">
+        <!--<input type="text" id="addressIn" placeholder="Enter address" value="172.16.100.112:8080" readonly />
 			 <input type="text" id="portIn" placeholder="Enter port" value="8080" />
 			<input type="checkbox" id="debugCb" /> Show debug
 			<input type="button" id="connectBt" value="Connect" onclick="onConnectBtClick()" />
 			<input type="button" id="disconnectBt" value="Disconnect" onclick="onDisconnectBtClick()" style="display: none;" /> -->
 
-			<input type="text" id="accountIn" placeholder="Enter account" value="tung.tranhuy" />
-			<input type="button" id="loginBtn" value="Login" onclick="onLoginBtnClick()" />
-			<input type="button" id="findBtn" value="Find Match" onclick="findGame()" style="visibility: hidden;" />
-		</div>
-		<div id="content">
-			<div id="visual">
-				<div id="game">
-					<div id="player-1">
-						<div class="info"></div>
-						<hr />
-						<div class="heros">
-							<div class="hero"></div>
-							<div class="hero"></div>
-							<div class="hero"></div>
-						</div>
-					</div>
-					<div id="canvas">
-						<div id="field">
-							<table id="grid">
-								<tr>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-								</tr>
-								<tr>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-								</tr>
-								<tr>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-								</tr>
-								<tr>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-								</tr>
-								<tr>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-								</tr>
-								<tr>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-								</tr>
-								<tr>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-								</tr>
-								<tr>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-								</tr>
-							</table>
-						</div>
-						<div>
-							<input id="slider" type="range" min="0" max="10" step="1" value="1">
-						</div>
-					</div>
-					<div id="player-2">
-						<div class="info"></div>
-						<hr />
-						<div class="heros">
-							<div class="hero"></div>
-							<div class="hero"></div>
-							<div class="hero"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<hr />
-			<div id="log">
-				<strong>Connection log</strong><br>
-				Enter the server address and port and click the <em>Connect</em> button
-			</div>
-		</div>
-	</div>
+        <input
+          type="text"
+          id="accountIn"
+          placeholder="Enter account"
+          value="tung.tranhuy"
+        />
+        <input
+          type="button"
+          id="loginBtn"
+          value="Login"
+          onclick="onLoginBtnClick()"
+        />
+        <input
+          type="button"
+          id="findBtn"
+          value="Find Match"
+          onclick="findGame()"
+          style="visibility: hidden"
+        />
+      </div>
+      <div id="content">
+        <div id="visual">
+          <div id="game">
+            <div id="player-1">
+              <div class="info"></div>
+              <hr />
+              <div class="heros">
+                <div class="hero"></div>
+                <div class="hero"></div>
+                <div class="hero"></div>
+              </div>
+            </div>
+            <div id="canvas">
+              <div id="field">
+                <table id="grid">
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                </table>
+              </div>
+              <div>
+                <input
+                  id="slider"
+                  type="range"
+                  min="0"
+                  max="10"
+                  step="1"
+                  value="1"
+                />
+              </div>
+            </div>
+            <div id="player-2">
+              <div class="info"></div>
+              <hr />
+              <div class="heros">
+                <div class="hero"></div>
+                <div class="hero"></div>
+                <div class="hero"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <hr />
+        <div id="log">
+          <strong>Connection log</strong><br />
+          Enter the server address and port and click the
+          <em>Connect</em> button
+        </div>
+      </div>
+    </div>
 
-	<!-- Load main script -->
+    <!-- Load main script -->
 
-	<script type="text/javascript">
-		window.params = new Proxy(new URLSearchParams(window.location.search), {
-			get: (searchParams, prop) => searchParams.get(prop),
-		});
-	</script>
+    <script type="text/javascript">
+      window.params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+      });
+    </script>
 
-	<script type="text/javascript">
-		if(params && params.strategy) {
-			const strategyClass = window.strategies[params.strategy];
+    <script type="text/javascript">
+      if (params && params.strategy) {
+        const strategyClass = window.strategies[params.strategy];
 
-			if(!strategyClass) {
-				console.log(`Strategy ${window.params.strategy} is not defined.`);
-			} else {
-				window.strategy = strategyClass.factory();	
-			}
-		}
-	</script>
-	
-	<script type="text/javascript" src="scripts/main.js"></script>
-	
-</body>
+        if (!strategyClass) {
+          console.log(`Strategy ${window.params.strategy} is not defined.`);
+        } else {
+          window.strategy = strategyClass.factory();
+        }
+      }
+    </script>
+    <script type="module" src="./libs/api.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="text/javascript" src="scripts/main.js"></script>
+  </body>
 </html>
