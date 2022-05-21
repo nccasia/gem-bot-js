@@ -32,7 +32,7 @@ class Grid {
     recommendSwapGem() {
         let listMatchGem = this.suggestMatch();
 
-        console.log("recommendSwapGem: ", listMatchGem);
+        // console.log("recommendSwapGem for later validation: ", listMatchGem);
 
         if (listMatchGem.length === 0) {
             return [-1, -1];
@@ -41,34 +41,38 @@ class Grid {
         let matchGemSizeThanFour = listMatchGem.find(gemMatch => gemMatch.sizeMatch > 4);
 
         if (matchGemSizeThanFour) {
+            fullData.matchGem = matchGemSizeThanFour
             return matchGemSizeThanFour.getIndexSwapGem();
         }
 
         let matchGemSizeThanThree = listMatchGem.find(gemMatch => gemMatch.sizeMatch > 3);
 
         if (matchGemSizeThanThree) {
+            fullData.matchGem = matchGemSizeThanThree
             return matchGemSizeThanThree.getIndexSwapGem();
         }
 
         let matchGemSword = listMatchGem.find(gemMatch => gemMatch.type == GemType.SWORD);
 
         if (matchGemSword) {
+            fullData.matchGem = matchGemSword
             return matchGemSword.getIndexSwapGem();
         }
 
-        console.log("myHeroGemType: ", this.myHeroGemType, "| Array.from(this.myHeroGemType)", Array.from(this.myHeroGemType));
+        // console.log("myHeroGemType: ", this.myHeroGemType, "| Array.from(this.myHeroGemType)", Array.from(this.myHeroGemType));
 
         let matchGemType = listMatchGem.find(gemMatch => Array.from(this.myHeroGemType).includes(gemMatch.type));
-
-        console.log("matchGem: ", matchGemType);
+        // console.log("matchGem hello: ", matchGemType);
 
 
         if (matchGemType) {
-            console.log("matchGemType ");
+            // console.log("matchGemType ");
+            fullData.matchGem = matchGemType
             return matchGemType.getIndexSwapGem();
         }
 
-        console.log("listMatchGem[0].getIndexSwapGem() ", listMatchGem[0].getIndexSwapGem());
+        fullData.matchGem = listMatchGem[0]
+        // console.log("listMatchGem[0].getIndexSwapGem() ", listMatchGem[0].getIndexSwapGem());
 
         return listMatchGem[0].getIndexSwapGem();
     }
@@ -77,7 +81,8 @@ class Grid {
         let listMatchGem = [];
 
         const tempGems = [...this.gems];
-        console.log(this.gems, 'current board')
+        fullData.currentBoard = this.gems
+        // console.log(this.gems, 'current board hello')
 
         tempGems.forEach(currentGem => {
 

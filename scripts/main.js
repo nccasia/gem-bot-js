@@ -33,6 +33,13 @@ var botPlayer;
 var enemyPlayer;
 var currentPlayerId;
 var grid;
+var fullData = {
+	currentBoard: [],
+	bot: [],
+	enemy: [],
+	matchGem: {},
+	label: 0
+};
 
 const username = "khanhn2";
 const token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJraGFuaC5sZWR1eTEiLCJhdXRoIjoiUk9MRV9VU0VSIiwiTEFTVF9MT0dJTl9USU1FIjoxNjUzMDM0NjMxNDQyLCJleHAiOjE2NTQ4MzQ2MzF9.sVLkUJU4-1UNswatSxpfdTa3bZxivSIbSwua7qKm195YWwqK6EzSfDa2w0UJvIjgOYl8pY_SXgu-ie0IREmRVg";
@@ -346,7 +353,7 @@ function EndGame() {
 function SendFinishTurn(isFirstTurn) {
 	let data = new SFS2X.SFSObject();
 	data.putBool("isFirstTurn", isFirstTurn);
-	log("sendExtensionRequest()|room:" + room.name + "|extCmd:" + FINISH_TURN + " first turn " + isFirstTurn);
+	// log("sendExtensionRequest()|room:" + room.name + "|extCmd:" + FINISH_TURN + " first turn " + isFirstTurn);
 	trace("sendExtensionRequest()|room:" + room.name + "|extCmd:" + FINISH_TURN + " first turn " + isFirstTurn);
 
 	SendExtensionRequest(FINISH_TURN, data);
@@ -412,7 +419,7 @@ function SendCastSkill(heroCastSkill, { targetId, selectedGem, gemIndex, isTarge
 	} else {
 		data.putBool("isTargetAllyOrNot", false);
 	}
-	log("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + USE_SKILL + "|Hero cast skill: " + heroCastSkill.name);
+	// log("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + USE_SKILL + "|Hero cast skill: " + heroCastSkill.name);
 	trace("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + USE_SKILL + "|Hero cast skill: " + heroCastSkill.name);
 
 	SendExtensionRequest(USE_SKILL, data);
@@ -422,13 +429,14 @@ function SendCastSkill(heroCastSkill, { targetId, selectedGem, gemIndex, isTarge
 function SendSwapGem(swap) {
 	let indexSwap = swap ? swap.getIndexSwapGem() : grid.recommendSwapGem();
 
-	log("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + SWAP_GEM + "|index1: " + indexSwap[0] + " index2: " + indexSwap[1]);
+	// log("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + SWAP_GEM + "|index1: " + indexSwap[0] + " index2: " + indexSwap[1]);
 	trace("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + SWAP_GEM + "|index1: " + indexSwap[0] + " index2: " + indexSwap[1]);
 
 	var data = new SFS2X.SFSObject();
 
 	data.putInt("index1", parseInt(indexSwap[0]));
 	data.putInt("index2", parseInt(indexSwap[1]));
+	console.log("Full data to check ", fullData)
 
 	SendExtensionRequest(SWAP_GEM, data);
 
@@ -465,7 +473,7 @@ function HandleGems(paramz) {
 	let gemCode = lastSnapshot.getSFSArray("gems");
 	let gemModifiers = lastSnapshot.getSFSArray("gemModifiers");
 
-	console.log("gemModifiers : ", gemModifiers);
+	// console.log("gemModifiers : ", gemModifiers);
 
 	grid.updateGems(gemCode, gemModifiers);
 
@@ -477,11 +485,15 @@ function HandleHeroes(paramz) {
 	for (let i = 0; i < botPlayer.heroes.length; i++) {
 		botPlayer.heroes[i].updateHero(heroesBotPlayer.getSFSObject(i));
 	}
+	fullData.bot = botPlayer.heroes
+	// console.log("BOT", botPlayer)
 
 	let heroesEnemyPlayer = paramz.getSFSArray(enemyPlayer.displayName);
 	for (let i = 0; i < enemyPlayer.heroes.length; i++) {
 		enemyPlayer.heroes[i].updateHero(heroesEnemyPlayer.getSFSObject(i));
 	}
+	fullData.enemy = enemyPlayer.heroes
+	// console.log("ENEMY", enemyPlayer)
 }
 
 
@@ -502,12 +514,12 @@ function GetRandomInt(max) {
 function SelectGem() {
 	let recommendGemType = botPlayer.getRecommendGemType();
 
-	console.log("recommendGemType: ", recommendGemType);
-	console.log("grid.gemType : ", grid.gemTypes);
+	// console.log("recommendGemType: ", recommendGemType);
+	// console.log("grid.gemType : ", grid.gemTypes);
 
 	let gemSelect = Array.from(recommendGemType).find(gemType => Array.from(grid.gemTypes).includes(gemType));
 
-	console.log("gemSelect : ", gemSelect);
+	// console.log("gemSelect : ", gemSelect);
 
 	return gemSelect;
 }
