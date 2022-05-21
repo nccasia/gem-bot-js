@@ -106,7 +106,8 @@ describe("Grid.js", () => {
   it("should perform distinction batch match correctly with one match",  () => {
     grid = consrtuctGrid(ONE_MATCH_GEMS);
     const matches = grid.getAllMatches();
-    grid.distinctGemBatch(matches[0]);
+    const distinction  = new GridDistinction();
+    grid.distinctGemBatch(matches[0], distinction);
 
     expect(grid.gemAt(0, 0)).to.have.property('removed', true);
     expect(grid.gemAt(1, 0)).to.have.property('removed', true);
@@ -117,7 +118,8 @@ describe("Grid.js", () => {
   it("should perform reshape match correctly with one match",  () => {
     grid = consrtuctGrid(ONE_MATCH_GEMS);
     const matches = grid.getAllMatches();
-    grid.distinctGemBatch(matches[0]);
+    const distinction  = new GridDistinction();
+    grid.distinctGemBatch(matches[0], distinction);
 
     grid.performReshape();
     
