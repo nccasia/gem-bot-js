@@ -18,6 +18,9 @@ class Player
         return this.heroes.filter(hero => hero.isAlive());
     }
 
+    getHerosAliveAndUnFullMana() {
+        return this.heroes.filter(hero => hero.isAlive() && hero.mana < hero.maxMana);
+    }
     
     getCastableHeros() {
         let arr = this.heroes.filter(hero => hero.isAlive() && hero.isFullMana());
