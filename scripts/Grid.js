@@ -41,86 +41,118 @@ class Grid {
     }
   }
 
-  getMatchGem(listMatchGemTypes) {
-    return (
-      listMatchGemTypes.indexOf(GemType.YELLOW).negativeOneToFalse() ||
-      listMatchGemTypes.indexOf(GemType.RED).negativeOneToFalse()
-    );
-  }
+  // getMatchGem(listMatchGemTypes) {
+  //   return (
+  //     listMatchGemTypes.indexOf(GemType.GREEN).negativeOneToFalse() ||
+  //     listMatchGemTypes.indexOf(GemType.YELLOW).negativeOneToFalse()
+  //   );
+  // }
 
   recommendSwapGem() {
     let listMatchGem = this.suggestMatch();
-
-    console.log("recommendSwapGem: ", listMatchGem);
-
+    console.log(listMatchGem, "listMatchGem");
     if (listMatchGem.length === 0) {
       return [-1, -1];
     }
 
-    const listMatchGemTypes = listMatchGem.map((item) => item.type);
-
-    const indexListMatchGem = this.getMatchGem(listMatchGemTypes);
-
-    if (indexListMatchGem != -1 && indexListMatchGem != false) {
-      console.log(indexListMatchGem, "indexListMatchGem");
-      return listMatchGem[indexListMatchGem].getIndexSwapGem();
+    const matchGem = this.prioritySwapGem(listMatchGem);
+    if (matchGem) {
+      return matchGem.getIndexSwapGem();
     }
 
-    // let matchGemSizeThanFive = listMatchGem.find(
-    //   (gemMatch) => gemMatch.sizeMatch > 5
-    // );
+    const listMatchTypes = listMatchGem.map((item) => item.type);
+    let matchType = 0;
+    if (!midGame) {
+      matchType = this.getMatchGemStartGame(listMatchTypes);
+    } else if (midGame) {
+      matchType = this.getMatchGemMidGame(listMatchTypes);
+    }
+    return listMatchGem[matchType].getIndexSwapGem();
+    // check  gem type is SWORD
+  }
 
-    // if (matchGemSizeThanFive) {
-    //   return matchGemSizeThanFive.getIndexSwapGem();
-    // }
-    // let matchGemSizeThanFour = listMatchGem.find(
-    //   (gemMatch) => gemMatch.sizeMatch > 4
-    // );
+  prioritySwapGem(listMatchGem) {
+    let matchGem = listMatchGem.find((x) => x.sizeMatch > 4);
+    // check GemModifier
+    const listMatchGemModifier = listMatchGem.filter((x) =>
+      GemModifierPower.includes(x.modifier)
+    );
+    if (listMatchGemModifier?.length > 1) {
+      return listMatchGemModifier[
+        this.cuuDuongChanKinh(listMatchGemModifier.length - 1)
+      ];
+    }
+    matchGem = !midGame
+      ? listMatchGem.find(
+          (x) =>
+            x.type != GemType.SWORD && x.sizeMatch > 3 && x.type != GemType.RED
+        )
+      : false;
+    matchGem =
+      matchGem ||
+      listMatchGem.find(
+        (x) =>
+          midGame &&
+          x.sizeMatch > 3 &&
+          x.type != GemType.GREEN &&
+          x.type != GemType.YELLOW &&
+          x.type != GemType.RED &&
+          x.type != GemType.PURPLE
+      );
+    console.log("prioritySwapGem", matchGem);
+    return matchGem;
+  }
 
-    // if (matchGemSizeThanFour) {
-    //   return matchGemSizeThanFour.getIndexSwapGem();
-    // }
+  getMatchGemStartGame(listMatchTypes) {
+    return (
+      this.getMatchGemTerra(listMatchTypes).negativeOneToFalse() ||
+      this.getMatchGemAirSpirit(listMatchTypes).negativeOneToFalse() ||
+      this.getMatchGemFireSpirit(listMatchTypes).negativeOneToFalse() ||
+      this.getMatchGemSWORD(listMatchTypes).negativeOneToFalse() ||
+      this.cuuDuongChanKinh(listMatchTypes.length - 1)
+    );
+  }
 
-    // let matchGemSizeThanThree = listMatchGem.find(
-    //   (gemMatch) => gemMatch.sizeMatch > 3
-    // );
+  getMatchGemMidGame(listMatchTypes) {
+    return (
+      this.getMatchGemSWORD(listMatchTypes).negativeOneToFalse() ||
+      this.getMatchGemTerra(listMatchTypes).negativeOneToFalse() ||
+      this.getMatchGemAirSpirit(listMatchTypes).negativeOneToFalse() ||
+      this.getMatchGemFireSpirit(listMatchTypes).negativeOneToFalse() ||
+      this.cuuDuongChanKinh(listMatchTypes.length - 1)
+    );
+  }
 
-    // if (matchGemSizeThanThree) {
-    //   return matchGemSizeThanThree.getIndexSwapGem();
-    // }
+  getMatchGemTerra(listMatchTypes) {
+    if (!SEA_SPIRIT.isAlive() || SEA_SPIRIT.isFullMana()) return false;
+    return this.getIndexGem(listMatchTypes, [GemType.GREEN, GemType.YELLOW]);
+  }
 
-    // let matchGemSword = listMatchGem.find(
-    //   (gemMatch) => gemMatch.type == GemType.SWORD
-    // );
+  getMatchGemAirSpirit(listMatchTypes) {
+    if (!AIR_SPIRIT.isAlive() || AIR_SPIRIT.isFullMana()) return false;
+    return this.getIndexGem(listMatchTypes, [GemType.BLUE, GemType.GREEN]);
+  }
 
-    // if (matchGemSword) {
-    //   return matchGemSword.getIndexSwapGem();
-    // }
+  getMatchGemFireSpirit(listMatchTypes) {
+    if (!FIRE_SPIRIT.isAlive() || FIRE_SPIRIT.isFullMana()) return false;
+    return this.getIndexGem(listMatchTypes, [GemType.RED, GemType.PURPLE]);
+  }
 
-    // console.log(
-    //   "myHeroGemType: ",
-    //   this.myHeroGemType,
-    //   "| Array.from(this.myHeroGemType)",
-    //   Array.from(this.myHeroGemType)
-    // );
+  getMatchGemSWORD(listMatchTypes) {
+    return this.getIndexGem(listMatchTypes, [GemType.SWORD]);
+  }
 
-    // let matchGemType = listMatchGem.find((gemMatch) =>
-    //   Array.from(this.myHeroGemType).includes(gemMatch.type)
-    // );
+  getIndexGem(listMatchTypes, types) {
+    for (const type of types) {
+      const index = listMatchTypes.indexOf(type);
+      if (index != -1) return index;
+    }
+    return false;
+  }
 
-    // console.log("matchGem: ", matchGemType);
-
-    // if (matchGemType) {
-    //   console.log("matchGemType ");
-    //   return matchGemType.getIndexSwapGem();
-    // }
-
-    // console.log(
-    //   "listMatchGem[0].getIndexSwapGem() ",
-    //   listMatchGem[0].getIndexSwapGem()
-    // );
-
-    return listMatchGem[0].getIndexSwapGem();
+  cuuDuongChanKinh(max) {
+    console.log("Cuu Duong Chan Kinh");
+    return Math.floor(Math.random() * max);
   }
 
   suggestMatch() {
@@ -202,7 +234,7 @@ class Grid {
         new GemSwapInfo(
           currentGem.index,
           swapGem.index,
-          matchGems.length,
+          matchGems.size,
           currentGem.type
         )
       );
