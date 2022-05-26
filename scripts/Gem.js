@@ -22,6 +22,8 @@ const GemModifier = {
 }
 
 
+const GemModifierPower = [1,5,8];
+
 const GemColor = {
     '-1': 'gray',
     0: '#00000073',
@@ -69,7 +71,7 @@ class Gem {
 
     clone() {
         const cloned = new Gem(this.index, this.type, this.modifier);
-        cloned.signature = this.signature;
+        cloned.signature = this.signature;     
         return cloned;
     }
 }
