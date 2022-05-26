@@ -283,8 +283,8 @@ function StartGame(gameSession, room) {
         botPlayer,
         enemyPlayer,
     });
+    if (strategy) {
 
-    if(strategy) {
         strategy.setGame({
             game: gameSession,
             grid,
@@ -297,6 +297,7 @@ function StartGame(gameSession, room) {
     }
 
 }
+
 
 function AssignPlayers(room) {
 
@@ -431,7 +432,7 @@ function SendCastSkill(heroCastSkill, { targetId, selectedGem, gemIndex, isTarge
 }
 
 function SendSwapGem(swap) {
-	let indexSwap = swap ? swap.getIndexSwapGem() : grid.recommendSwapGem();
+    let indexSwap = swap ?? grid.recommendSwapGem();
 
 	log("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + SWAP_GEM + "|index1: " + indexSwap[0] + " index2: " + indexSwap[1]);
 	trace("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + SWAP_GEM + "|index1: " + indexSwap[0] + " index2: " + indexSwap[1]);
@@ -569,9 +570,8 @@ function HandleCastSkill(botPlayerHerosFullMana) {
         }
     }
     if (airSpirit && airSpirit.isFullMana()) {
-        heroCastSkill = airSpirit;
-        target.gemIndex = HandleIndexCastSkillAirSpirit();
-        SendCastSkill(heroCastSkill, target)
+        //target.gemIndex = HandleIndexCastSkillAirSpirit();
+        SendCastSkill(airSpirit, target)
         return;
     }
     SendCastSkill(botPlayerHerosFullMana[0]);
