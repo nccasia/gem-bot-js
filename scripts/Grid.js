@@ -1,3 +1,11 @@
+Number.prototype.negativeOneToFalse = function() {
+	return this.valueOf() === -1 ? false : this;
+};
+
+Boolean.prototype.negativeOneToFalse = function() {
+	return false;
+};
+
 function union (sets) {
     return sets.reduce((combined, list) => {
       return new Set([...combined, ...list]);
@@ -9,73 +17,126 @@ class GridDistinction {
     matchesSize = [];
 }
 class Grid {
-    constructor(gemsCode, gemModifiers, gemTypes) {
-        this.gems = [];
-        this.gemeCode = gemsCode;
-        this.gemTypes = new Set();
-        this.updateGems(gemsCode, gemModifiers);
-
+	constructor(gemsCode, gemModifiers, gemTypes) {
+		this.gems = [];
+		this.gemeCode = gemsCode;
+		this.gemTypes = new Set();
+		this.updateGems(gemsCode, gemModifiers);
+		
         this.myHeroGemType = gemTypes;
-    }
+	}
 
-    updateGems(gemsCode, gemModifiers) {
-        this.gems = [];
-        this.gemeCode = gemsCode;
-        this.gemTypes = new Set();
+	updateGems(gemsCode, gemModifiers) {
+		this.gems = [];
+		this.gemeCode = gemsCode;
+		this.gemTypes = new Set();
 
         for (let i = 0; i < gemsCode.size(); i++) {
             let gem = new Gem(i, gemsCode.getByte(i), gemModifiers != null ? gemModifiers.getByte(i) : GemModifier.NONE);
-            this.gems.push(gem);
+			this.gems.push(gem);
 
-            this.gemTypes.add(gem.type);
+			this.gemTypes.add(gem.type);
 
-            // console.log(i + ": " + gem.type)
-        }
+			// console.log(i + ": " + gem.type)
+		}
+	}
+
+	recommendSwapGem() {
+		let listMatchGem = this.suggestMatch();
+		if (listMatchGem.length === 0) {
+			return [-1, -1];
+		}
+
+		const matchGem = this.prioritySwapGem(listMatchGem);
+		if (matchGem) {
+			return matchGem.getIndexSwapGem();
+		}
+
+		const listMatchTypes = listMatchGem.map((item) => item.type);
+		let matchIndex = 0;
+		if (!midGame) {
+			matchIndex = this.getMatchGemStartGame(listMatchTypes);
+		} else if (midGame) {
+			matchIndex = this.getMatchGemMidGame(listMatchTypes);
+		}
+		return listMatchGem[matchIndex].getIndexSwapGem();
+		// check  gem type is SWORD
+	}
+
+	prioritySwapGem(listMatchGem) {
+		
+	let matchGem = listMatchGem.find(x => x.sizeMatch > 4);
+    // check GemModifier
+    const listMatchGemModifier = listMatchGem.filter(x => GemModifierPower.includes(x.modifier));
+    if(listMatchGemModifier?.length > 1){
+      return listMatchGemModifier[this.xingame(listMatchGemModifier.length - 1)];
     }
+    
+		matchGem = !midGame ? listMatchGem.find(x => x.type != GemType.SWORD && x.sizeMatch > 3 && x.type != GemType.RED) : false;
+		matchGem = matchGem ||listMatchGem.find(x => midGame &&	x.sizeMatch > 3 && x.type != GemType.GREEN && x.type != GemType.YELLOW && x.type != GemType.RED);
+		console.log("prioritySwapGem", matchGem);
+		return matchGem;
+	}
 
-    recommendSwapGem() {
-        let listMatchGem = this.suggestMatch();
+	getMatchGemEnemy(listMatchTypes) {
+		// console.log("getMatchGemEnemy");
+		return false;
+	}
 
-        console.log("recommendSwapGem: ", listMatchGem);
+	getMatchGemStartGame(listMatchTypes) {
+		return (
+			this.getMatchGemTerra(listMatchTypes).negativeOneToFalse() ||
+			this.getMatchGemEnemy(listMatchTypes).negativeOneToFalse() ||
+			this.getMatchGemDISPATER(listMatchTypes).negativeOneToFalse() ||
+			this.getMatchGemCerberus(listMatchTypes).negativeOneToFalse() ||
+			this.getMatchGemSWORD(listMatchTypes).negativeOneToFalse() ||
+			this.xingame(listMatchTypes.length - 1)
+		);
+	}
 
-        if (listMatchGem.length === 0) {
-            return [-1, -1];
-        }
-
-        let matchGemSizeThanFour = listMatchGem.find(gemMatch => gemMatch.sizeMatch > 4);
-
-        if (matchGemSizeThanFour) {
-            return matchGemSizeThanFour.getIndexSwapGem();
-        }
-
-        let matchGemSizeThanThree = listMatchGem.find(gemMatch => gemMatch.sizeMatch > 3);
-
-        if (matchGemSizeThanThree) {
-            return matchGemSizeThanThree.getIndexSwapGem();
-        }
-
-        let matchGemSword = listMatchGem.find(gemMatch => gemMatch.type == GemType.SWORD);
-
-        if (matchGemSword) {
-            return matchGemSword.getIndexSwapGem();
-        }
-
-        console.log("myHeroGemType: ", this.myHeroGemType, "| Array.from(this.myHeroGemType)", Array.from(this.myHeroGemType));
-
-        let matchGemType = listMatchGem.find(gemMatch => Array.from(this.myHeroGemType).includes(gemMatch.type));
-
-        console.log("matchGem: ", matchGemType);
+	getMatchGemMidGame(listMatchTypes) {
+		return (
+			this.getMatchGemCerberus(listMatchTypes).negativeOneToFalse() ||
+			this.getMatchGemEnemy(listMatchTypes).negativeOneToFalse() ||
+			this.getMatchGemSWORD(listMatchTypes).negativeOneToFalse() ||
+			this.getMatchGemDISPATER(listMatchTypes).negativeOneToFalse() ||
+			this.xingame(listMatchTypes.length - 1)
+		);
+	}
 
 
-        if (matchGemType) {
-            console.log("matchGemType ");
-            return matchGemType.getIndexSwapGem();
-        }
 
-        console.log("listMatchGem[0].getIndexSwapGem() ", listMatchGem[0].getIndexSwapGem());
+	getMatchGemTerra(listMatchTypes) {
+		if (!SEA_SPIRIT.isAlive() || SEA_SPIRIT.isFullMana()) return false;
+		return this.getIndexGem(listMatchTypes, [GemType.GREEN, GemType.YELLOW]);
+	}
 
-        return listMatchGem[0].getIndexSwapGem();
-    }
+	getMatchGemCerberus(listMatchTypes) {
+		if (!CERBERUS.isAlive()) return false;
+		return this.getIndexGem(listMatchTypes, [GemType.BLUE, GemType.BROWN]);
+	}
+
+	getMatchGemDISPATER(listMatchTypes) {
+		if (!DISPATER.isAlive()) return false;
+		return this.getIndexGem(listMatchTypes, [GemType.RED, GemType.PURPLE]);
+	}
+
+	getMatchGemSWORD(listMatchTypes) {
+		return this.getIndexGem(listMatchTypes, [GemType.SWORD]);
+	}
+
+	getIndexGem(listMatchTypes, types) {
+		for (const type of types) {
+			const index = listMatchTypes.indexOf(type);
+			if (index != -1) return index;
+		}
+		return false;
+	}
+
+	xingame(max) {
+		console.log("xingame");
+		return Math.floor(Math.random() * max);
+	}
 
     suggestMatch() {
         let listMatchGem = [];
@@ -133,38 +194,38 @@ class Grid {
 
 
         if (matchGems.size > 0) {
-            listMatchGem.push(new GemSwapInfo(currentGem.index, swapGem.index, matchGems.length, currentGem.type));
+            listMatchGem.push(new GemSwapInfo( listMatchGem?.length ? listMatchGem.length : 0, currentGem.index, swapGem.index, matchGems.size, currentGem.type,currentGem.modifier));
         }
     }
 
-    getGemIndexAt(x, y) {
-        return x + y * 8;
-    }
+	getGemIndexAt(x, y) {
+		return x + y * 8;
+	}
 
-    swap(a, b) {
-        let tempIndex = a.index;
-        let tempX = a.x;
-        let tempY = a.y;
+	swap(a, b) {
+		let tempIndex = a.index;
+		let tempX = a.x;
+		let tempY = a.y;
 
-        // update reference
-        this.gems[a.index] = b;
-        this.gems[b.index] = a;
+		// update reference
+		this.gems[a.index] = b;
+		this.gems[b.index] = a;
 
-        // update data of element
-        a.index = b.index;
-        a.x = b.x;
-        a.y = b.y;
+		// update data of element
+		a.index = b.index;
+		a.x = b.x;
+		a.y = b.y;
 
-        b.index = tempIndex;
-        b.x = tempX;
-        b.y = tempY;
-    }
+		b.index = tempIndex;
+		b.x = tempX;
+		b.y = tempY;
+	}
 
-    swapIndex(index1, index2) {
-        const gem1 = this.gems[index1];
-        const gem2 = this.gems[index2];
-        return this.swap(gem1, gem2);
-    }
+	swapIndex(index1, index2) {
+		const gem1 = this.gems[index1];
+		const gem2 = this.gems[index2];
+		return this.swap(gem1, gem2);
+	}
 
     matchesAt(x, y) {
         let res = new Set();
@@ -251,7 +312,7 @@ class Grid {
         const result = this.performDistinction(allMatchGems, distinction);
         return result;
     }
-    
+
     getAllMatches() {
         const matches = [];
         for(const gem of this.gems) {
@@ -260,9 +321,9 @@ class Grid {
                 matches.push(matchGems);
             }
         }
-        return matches.length > 0 ? [union(matches)] : [];
+        return matches.length > 0 ? matches : [];
     }
-    
+
     performDistinction(allMatchGems, distinction) {
         for(const matchGems of allMatchGems) {
             this.distinctGemBatch(matchGems, distinction)
