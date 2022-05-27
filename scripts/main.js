@@ -36,7 +36,7 @@ var currentPlayerId;
 var grid;
 
 const username = "amen";
-const token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGkubGVraW0iLCJhdXRoIjoiUk9MRV9VU0VSIiwiTEFTVF9MT0dJTl9USU1FIjoxNjUzNTU3NzAzODQ1LCJleHAiOjE2NTUzNTc3MDN9.yN78wH8k4eOp397FPQpded0qGodRNyx19p1CbQpQ6oPlVk-CGvRWtl-V06Y_9wx-Xska9RaAmDM7dEWE1wJymA";
+const token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGkubGVraW0iLCJhdXRoIjoiUk9MRV9VU0VSIiwiTEFTVF9MT0dJTl9USU1FIjoxNjUzNjQ5NTcwMjYwLCJleHAiOjE2NTU0NDk1NzB9.zLNolld4z_vcitnWhr4_AOdt6nBJq37zSqYJaIF35nNKqYKzyEcdBt8u6w8yjuiLNyksvJpF2xOP_70cwulM2w";
 var visualizer = new Visualizer({ el: '#visual' });
 var params = window.params;
 var strategy = window.strategy;
@@ -341,8 +341,7 @@ function AssignPlayers(room) {
     if (user1.isItMe) {
         botPlayer = new Player(playerId1, "player" + playerId1);
         enemyPlayer = new Player(playerId2, "player" + playerId2);
-    } 
-    else {
+    } else {
         botPlayer = new Player(playerId2, "player" + playerId2);
         enemyPlayer = new Player(playerId1, "player" + playerId1);
     }
@@ -414,15 +413,17 @@ function SendCastSkill(heroCastSkill, {
     } else {
         data.putUtfString("targetId", enemyPlayer.firstHeroAlive().id.toString());
     }
-    console.log("selectedGem:  ", SelectGem());
     if (selectedGem) {
         data.putUtfString("selectedGem", selectedGem);
-    } else {
+    } 
+    else {
         data.putUtfString("selectedGem", SelectGem().toString());
     }
     if (gemIndex) {
         data.putUtfString("gemIndex", gemIndex);
-    } else {
+    } 
+    else
+    {
         data.putUtfString("gemIndex", GetRandomInt(64).toString());
     }
 
@@ -431,7 +432,6 @@ function SendCastSkill(heroCastSkill, {
     } else {
         data.putBool("isTargetAllyOrNot", false);
     }
-    console.log("data_cast: ", data);
     log("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + USE_SKILL + "|Hero cast skill: " + heroCastSkill.name);
     trace("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + USE_SKILL + "|Hero cast skill: " + heroCastSkill.name);
 
@@ -551,8 +551,7 @@ function HandleCastSkill(botPlayerHerosFullMana) {
         }
         SendCastSkill(seaSpirit, target);
         return;
-    } 
-    else if (fireSpirit && fireSpirit.isFullMana()) {
+    } else if (fireSpirit && fireSpirit.isFullMana()) {
         let gemRed = grid.numberOfGemType(GemType.RED);
         let enemyHeroCanBeKilleds = [];
         let enemyHeroCanBeKilledAndIsFullManas = [];
@@ -563,13 +562,12 @@ function HandleCastSkill(botPlayerHerosFullMana) {
                 enemyHeroCanBeKilledAndIsFullManas.push(enemyIsFullManas[i]);
             }
         }
-        if (enemyHeroCanBeKilledAndIsFullManas.length > 0){
+        if (enemyHeroCanBeKilledAndIsFullManas.length > 0) {
             let enemyHeroId = GetEnemyHeroHasAttackMax(enemyHeroCanBeKilledAndIsFullManas, enemyHeroCanBeKilledAndIsFullManas.length);
             target.targetId = enemyHeroId.toString();
             SendCastSkill(fireSpirit, target);
             return;
-        } 
-        else {
+        } else {
             for (let i = 0; i < enemyHerosAlive.length; i++) {
                 let skillDames = enemyHerosAlive[i].attack + gemRed;
                 if (skillDames >= enemyHerosAlive[i].hp)
@@ -580,8 +578,7 @@ function HandleCastSkill(botPlayerHerosFullMana) {
                 target.targetId = enemyHeroId.toString();
                 SendCastSkill(fireSpirit, target);
                 return;
-            } 
-            else {
+            } else {
                 if (enemyHerosAlive && enemyHerosAlive.length > 0) {
                     let enemyHeroId = GetEnemyHeroHasAttackMax(enemyHerosAlive, enemyHerosAlive.length);
                     target.targetId = enemyHeroId.toString();
@@ -595,7 +592,6 @@ function HandleCastSkill(botPlayerHerosFullMana) {
         let swords = HandleCastSkillAirSpirit([GemType.SWORD]);
         if (swords) {
             if (swords[0].quantity > 3 || (swords[0].quantity > 2 && firstHeroAlive_botPlayer.attack >= firstHeroAlive_enemyPlayer.hp)) {
-                // target.targetId = firstHeroAlive_enemyPlayer.id.toString()
                 target.gemIndex = swords[0].index.toString();
                 target.isTargetAllyOrNot = true;
                 SendCastSkill(airSpirit, target);
@@ -606,7 +602,6 @@ function HandleCastSkill(botPlayerHerosFullMana) {
         if (gemTypesRecommend && gemTypesRecommend.length > 0) {
             let listChoice = HandleCastSkillAirSpirit(gemTypesRecommend)
             if (listChoice) {
-                // target.targetId = firstHeroAlive_enemyPlayer.id.toString()
                 target.gemIndex = listChoice[0].index.toString();
                 target.isTargetAllyOrNot = true;
                 SendCastSkill(airSpirit, target);
@@ -654,7 +649,6 @@ function HandleSwapGems() {
     ];
 
     let listGemTypePriority = checkGemTypeBotPlayerAlive();
-    console.log("listGemTypePriority: ", listGemTypePriority);
     //xanh duong, xanh la, vang, tim, do
     if (checkListEnemyHeroHasOneshot()) {
         listGemTypePriority.unshift(GemType.RED);
@@ -838,7 +832,6 @@ function GetListGemsPriority(priorityHero, isCheckFullMana = false) {
                 gemTypesReverse.forEach(gem => listGemsPriority.push(gem));
         });
     }
-    console.log("listGemsPriority100000: ", listGemsPriority);
     return listGemsPriority.filter(function(item, index) {
         if (listGemsPriority.indexOf(item) == index)
             return item;
@@ -864,7 +857,7 @@ function GetIndexSwapGemByGemTypeAndSizeMatch(gemTypes, sizeMatch = null) {
     return null;
 }
 
-function BotHeroCanBeKilled (hero) {
+function BotHeroCanBeKilled(hero) {
     let enemyHeroFullMana = enemyPlayer.anyHeroFullMana();
     let firstHeroAlive_enemyPlayer = enemyPlayer.firstHeroAlive();
     if (enemyHeroFullMana)
@@ -897,21 +890,17 @@ function HandleCastSkillAirSpirit(gemTypes) {
         if (!indexGemsUnCheck.includes(indexBoard3x3)) {
             listGemsPriority.push(FindNumberGemTypeOfMatrix(boardIndexGem, gemTypes, indexBoard3x3));
         }
-        for(let i = 0; i < boardIndexGem.length; i++){
-            if(boardIndexGem[0] < indexStep){
+        for (let i = 0; i < boardIndexGem.length; i++) {
+            if (boardIndexGem[0] < indexStep) {
                 boardIndexGem[i] += 1;
-            }
-            else{
+            } else {
                 boardIndexGem[i] += 3;
                 indexStep += 8;
             }
         }
     }
-    console.log("listGemsPriority: ", listGemsPriority)
     let quantityMax = Math.max(...listGemsPriority.map(o => o.quantity), 0);
-    console.log("Max: ", quantityMax);
     var list = listGemsPriority.filter(x => x.quantity == quantityMax);
-    console.log("listGemsPriority.indexOf(...quantityMax): ", list);
     return list;
 }
 
@@ -920,15 +909,20 @@ function FindNumberGemTypeOfMatrix(boardIndexGem, listGemType, indexBoard3x3) {
     let totalReturn = 0;
     listGemType.forEach(gemType => {
         let quantity = 0;
-        let modifier = null;
         boardIndexGem.forEach(index => {
-            if (index < 64 && grid.gems[index].type === gemType || grid.gems[index].modifier === GemModifier.EXTRA_TURN) {
+            if (index < 64 && grid.gems[index].type === gemType) {
                 quantity += 1;
                 totalReturn += 1;
-                modifier = grid.gems[index].modifier;
             }
         })
-        gemDetails.push({ quantityOfGem: quantity, gemType: gemType, gemModifier: modifier })
+        gemDetails.push({
+            quantityOfGem: quantity,
+            gemType: gemType
+        })
     })
-    return { index: indexBoard3x3, quantity: totalReturn, gemDetails };
+    return {
+        index: indexBoard3x3,
+        quantity: totalReturn,
+        gemDetails
+    };
 }
