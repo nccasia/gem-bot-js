@@ -417,12 +417,12 @@ function SendCastSkill(heroCastSkill, {
     console.log("selectedGem:  ", SelectGem());
     if (selectedGem) {
         data.putUtfString("selectedGem", selectedGem);
-    } {
+    } else {
         data.putUtfString("selectedGem", SelectGem().toString());
     }
     if (gemIndex) {
         data.putUtfString("gemIndex", gemIndex);
-    } {
+    } else {
         data.putUtfString("gemIndex", GetRandomInt(64).toString());
     }
 
@@ -595,10 +595,6 @@ function HandleCastSkill(botPlayerHerosFullMana) {
         let swords = HandleCastSkillAirSpirit([GemType.SWORD]);
         if (swords) {
             if (swords[0].quantity > 3 || (swords[0].quantity > 2 && firstHeroAlive_botPlayer.attack >= firstHeroAlive_enemyPlayer.hp)) {
-
-                console.log(swords[0]);
-                console.log(swords);
-
                 // target.targetId = firstHeroAlive_enemyPlayer.id.toString()
                 target.gemIndex = swords[0].index.toString();
                 target.isTargetAllyOrNot = true;
@@ -610,10 +606,6 @@ function HandleCastSkill(botPlayerHerosFullMana) {
         if (gemTypesRecommend && gemTypesRecommend.length > 0) {
             let listChoice = HandleCastSkillAirSpirit(gemTypesRecommend)
             if (listChoice) {
-
-                console.log(listChoice[0]);
-                console.log(listChoice);
-
                 // target.targetId = firstHeroAlive_enemyPlayer.id.toString()
                 target.gemIndex = listChoice[0].index.toString();
                 target.isTargetAllyOrNot = true;
@@ -684,12 +676,24 @@ function HandleSwapGems() {
         return matchGemSizeThanFour.getIndexSwapGem();
     }
     let matchGemSwordThanThree = listMatchGem.find(x => x.type == GemType.SWORD && x.sizeMatch > 3);
-    if (matchGemSwordThanThree && firstHeroAlive_botPlayer.attack >= firstHeroAlive_enemyPlayer.hp) {
+    if (matchGemSwordThanThree && firstHeroAlive_botPlayer.attack + 5 >= firstHeroAlive_enemyPlayer.hp) {
         return matchGemSwordThanThree.getIndexSwapGem();
     }
     let matchGemSwordThanTwo = listMatchGem.find(x => x.type == GemType.SWORD && x.sizeMatch > 2);
     if (matchGemSwordThanTwo && firstHeroAlive_botPlayer.attack >= firstHeroAlive_enemyPlayer.hp) {
         return matchGemSwordThanTwo.getIndexSwapGem();
+    }
+    if (matchGemSwordThanThree && (firstHeroAlive_enemyPlayer.attack + 5 >= firstHeroAlive_botPlayer.hp)) {
+        return matchGemSwordThanThree.getIndexSwapGem();
+    }
+    if (matchGemSwordThanTwo && (firstHeroAlive_enemyPlayer.attack >= firstHeroAlive_botPlayer.hp)) {
+        return matchGemSwordThanTwo.getIndexSwapGem();
+    }
+    if (seaSpirit == null && airSpirit && airSpirit.attack >= AIR_SPIRIT_MAXATTACK) {
+        if(matchGemSwordThanThree)
+            return matchGemSwordThanThree.getIndexSwapGem();
+        if(matchGemSwordThanTwo)
+            return matchGemSwordThanTwo.getIndexSwapGem();
     }
     if (airSpirit && airSpirit.getMaxManaCouldTake() <= 4) {
         let airFullManaGem = listMatchGem.find(x => x.sizeMatch > 3 && (x.type == GemType.BLUE || x.type == GemType.GREEN));
