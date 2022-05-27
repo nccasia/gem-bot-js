@@ -40,7 +40,8 @@ var CERBERUS;
 var midGame = false;
 
 const username = "thuy.dangthibich";
-const token =eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ2aW5oLm5ndXllbnF1b2MiLCJhdXRoIjoiUk9MRV9VU0VSIiwiTEFTVF9MT0dJTl9USU1FIjoxNjUzNTYwODk2MjE5LCJleHAiOjE2NTUzNjA4OTZ9.2hCDkv3vthkgFFG468gmaISHc1jjlecNhmLWVy-z4cku62l_kQf6XL1KJ5yFMbzyXm4DyeLzvh239TppkqUyAQ";
+const token =
+  "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ2aW5oLm5ndXllbnF1b2MiLCJhdXRoIjoiUk9MRV9VU0VSIiwiTEFTVF9MT0dJTl9USU1FIjoxNjUzNTYwODk2MjE5LCJleHAiOjE2NTUzNjA4OTZ9.2hCDkv3vthkgFFG468gmaISHc1jjlecNhmLWVy-z4cku62l_kQf6XL1KJ5yFMbzyXm4DyeLzvh239TppkqUyAQ";
 var visualizer = new Visualizer({ el: "#visual" });
 var params = window.params;
 var strategy = window.strategy;
@@ -183,7 +184,6 @@ function trace(message, prefix, isDebug) {
 }
 
 function reset() {
-  // Remove SFS2X listeners
   sfs.removeEventListener(SFS2X.SFSEvent.CONNECTION, onConnection);
   sfs.removeEventListener(SFS2X.SFSEvent.CONNECTION_LOST, onConnectionLost);
 
@@ -296,7 +296,6 @@ function StartGame(gameSession, room) {
   SEA_SPIRIT = botPlayer.heroes[0];
   DISPATER = botPlayer.heroes[1];
   CERBERUS = botPlayer.heroes[2];
-
 
   // Gems
   grid = new Grid(
@@ -419,57 +418,36 @@ function StartTurn(param) {
       return;
     }
 
-    if (SEA_SPIRIT.isFullMana() && hasFIRE_SPIRIT()) {
-      if (castSkillMONK()) return;
+    if (SEA_SPIRIT.isFullMana()) {
+      if (castSkillSEA_SPIRIT()) return;
     } else if (SEA_SPIRIT.isFullMana()) {
       midGame = true;
       SendCastSkill(SEA_SPIRIT);
       return;
     }
 
-    if (DISPATER.isFullMana()) {
-      castSkillDISPATER();
-      return;
-    }
     if (CERBERUS.isFullMana()) {
       castSkillCERBERUS();
       return;
     }
-
-
+    if (DISPATER.isFullMana()) {
+      castSkillDISPATER();
+      return;
+    }
     SendSwapGem();
   }, delaySwapGem);
 }
 
-function castSkillMONK() {
-  midGame = true;
-  if (CERBERUS.isFullMana() || !CERBERUS.isAlive()) {
-    SendCastSkill(SEA_SPIRIT);
-    return true;
-  }
-  return false;
-}
 function castSkillSEA_SPIRIT() {
   let targetId = SEA_SPIRIT.id.toString();
   if (CERBERUS.isAlive()) {
     targetId = CERBERUS.id.toString();
-  } else if (DISPATER.isAlive()) {
-    targetId = DISPATER.id.toString();
   }
   SendCastSkill(SEA_SPIRIT, { targetId });
 }
 
 function castSkillCERBERUS() {
   SendCastSkill(CERBERUS);
-}
-
-function hasFIRE_SPIRIT() {
-  for (const hero of enemyPlayer.heroes) {
-    if (hero.id == "FIRE_SPIRIT") {
-      return true;
-    }
-  }
-  return false;
 }
 
 function castSkillDISPATER() {
