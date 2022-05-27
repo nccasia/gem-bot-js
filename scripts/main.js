@@ -40,7 +40,8 @@ var CERBERUS;
 var midGame = false;
 
 const username = "thuy.dangthibich";
-const token ="eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0aHV5LmRhbmd0aGliaWNoIiwiYXV0aCI6IlJPTEVfVVNFUiIsIkxBU1RfTE9HSU5fVElNRSI6MTY1Mjg1ODQxNzYxMCwiZXhwIjoxNjU0NjU4NDE3fQ.Zl7fPJZwOOnH1LSfnM_UUuYANHqXavF4EAH1gSiEfkyJGwUKRxbhOzcdwLd8Xgb-XFYDK_vLvMPFl5fMVmZv6A";
+const token =
+  "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0aHV5LmRhbmd0aGliaWNoIiwiYXV0aCI6IlJPTEVfVVNFUiIsIkxBU1RfTE9HSU5fVElNRSI6MTY1Mjg1ODQxNzYxMCwiZXhwIjoxNjU0NjU4NDE3fQ.Zl7fPJZwOOnH1LSfnM_UUuYANHqXavF4EAH1gSiEfkyJGwUKRxbhOzcdwLd8Xgb-XFYDK_vLvMPFl5fMVmZv6A";
 var visualizer = new Visualizer({ el: "#visual" });
 var params = window.params;
 var strategy = window.strategy;
