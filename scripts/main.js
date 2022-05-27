@@ -38,6 +38,7 @@ var SEA_SPIRIT;
 var AIR_SPIRIT;
 var FIRE_SPIRIT;
 var midGame = false;
+var Buff = 0;
 
 const username = "hoang.nguyencanh";
 const token =
@@ -49,10 +50,6 @@ visualizer.start();
 
 // Connect to Game server
 initConnection();
-
-// const params = new Proxy(new URLSearchParams(window.location.search), {
-// 	get: (searchParams, prop) => searchParams.get(prop),
-// });
 
 if (params.username) {
   document.querySelector("#accountIn").value = params.username;
@@ -294,7 +291,6 @@ function StartGame(gameSession, room) {
     enemyPlayer.heroes.push(new Hero(enemyPlayerHero.getSFSObject(i)));
   }
 
-  console.log(enemyPlayer, "enemyPlayer");
   SEA_SPIRIT = botPlayer.heroes[0];
   AIR_SPIRIT = botPlayer.heroes[1];
   FIRE_SPIRIT = botPlayer.heroes[2];
@@ -341,7 +337,6 @@ function StartGame(gameSession, room) {
 }
 
 function AssignPlayers(room) {
-  // note 1
   let users = room.getPlayerList();
 
   let user1 = users[0];
@@ -388,6 +383,7 @@ function AssignPlayers(room) {
 
 function EndGame() {
   isJoinGameRoom = false;
+
   document.getElementById("log").innerHTML = "";
   visualizer.snapShot();
 }
@@ -411,14 +407,14 @@ function SendFinishTurn(isFirstTurn) {
       " first turn " +
       isFirstTurn
   );
+
   SendExtensionRequest(FINISH_TURN, data);
 }
 
 function StartTurn(param) {
   setTimeout(function () {
-    currentPlayerId = param.getInt("currentPlayerId");
     visualizer.snapShot();
-
+    currentPlayerId = param.getInt("currentPlayerId");
     if (!isBotTurn()) {
       trace("not isBotTurn");
       return;
@@ -428,7 +424,6 @@ function StartTurn(param) {
       strategy.playTurn();
       return;
     }
-
     if (SEA_SPIRIT.isFullMana()) {
       if (castSkillSEA_SPIRIT()) return;
     } else if (SEA_SPIRIT.isFullMana()) {
@@ -436,6 +431,10 @@ function StartTurn(param) {
       console.log("midGame", midGame);
       SendCastSkill(SEA_SPIRIT);
       return;
+    }
+
+    if (!SEA_SPIRIT.isAlive()) {
+      midGame = true;
     }
 
     if (AIR_SPIRIT.isFullMana()) {
@@ -451,11 +450,16 @@ function StartTurn(param) {
 }
 
 function castSkillSEA_SPIRIT() {
-  let targetId = SEA_SPIRIT.id.toString();
-  if (AIR_SPIRIT.isAlive()) {
+  let targetId = null;
+  if (AIR_SPIRIT.isAlive() && Buff == 0) {
+    Buff = 1;
     targetId = AIR_SPIRIT.id.toString();
+  } else if (Buff == 1) {
+    targetId = SEA_SPIRIT.id.toString();
+    Buff = 0;
   } else if (FIRE_SPIRIT.isAlive()) {
     targetId = FIRE_SPIRIT.id.toString();
+    Buff = 0;
   }
   SendCastSkill(SEA_SPIRIT, { targetId });
 }
@@ -492,18 +496,16 @@ function SendCastSkill(
   heroCastSkill,
   { targetId, selectedGem, gemIndex, isTargetAllyOrNot } = {}
 ) {
-  console.log(botPlayer.lastHero().id);
   var data = new SFS2X.SFSObject();
+
   data.putUtfString("casterId", heroCastSkill.id.toString());
-  console.log(targetId);
   if (targetId) {
     data.putUtfString("targetId", targetId);
-  } else if (heroCastSkill.id.toString()) {
-    data.putUtfString("targetId", botPlayer.lastHero().id.toString());
+  } else if (heroCastSkill.isHeroSelfSkill()) {
+    data.putUtfString("targetId", botPlayer.firstHeroAlive().id.toString());
   } else {
     data.putUtfString("targetId", enemyPlayer.firstHeroAlive().id.toString());
   }
-
   console.log("selectedGem:  ", SelectGem());
   if (selectedGem) {
     data.putUtfString("selectedGem", selectedGem);
@@ -611,9 +613,7 @@ function HandleGems(paramz) {
 
   grid.updateGems(gemCode, gemModifiers);
 
-  setTimeout(function () {
-    SendFinishTurn(false);
-  }, delaySwapGem);
+  // setTimeout(function () { SendFinishTurn(false) }, delaySwapGem);
 }
 
 function HandleHeroes(paramz) {
