@@ -431,6 +431,11 @@ function StartTurn(param) {
 
     if (SEA_SPIRIT.isFullMana()) {
       if (castSkillSEA_SPIRIT()) return;
+    } else if (SEA_SPIRIT.isFullMana()) {
+      midGame = true;
+      console.log("midGame", midGame);
+      SendCastSkill(SEA_SPIRIT);
+      return;
     }
 
     if (AIR_SPIRIT.isFullMana()) {
@@ -460,7 +465,7 @@ function castSkillFIRE_SPIRIT() {
     .filter((item) => item.hp > 0)
     .sort((a, b) => (a.attack < b.attack ? 1 : -1));
 
-  if (killCarry(heroes, "FIRE_SPIRIT")) return;
+  // if (killCarry(heroes, "FIRE_SPIRIT")) return;
   // if (killCarry(heroes, "SEA_GOD")) return;
   const adCarry = heroes[0];
   SendCastSkill(FIRE_SPIRIT, { targetId: adCarry.id.toString() ?? null });

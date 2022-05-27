@@ -115,9 +115,9 @@ class Grid {
 
   getMatchGemMidGame(listMatchTypes) {
     return (
-      this.getMatchGemSWORD(listMatchTypes).negativeOneToFalse() ||
-      this.getMatchGemTerra(listMatchTypes).negativeOneToFalse() ||
       this.getMatchGemAirSpirit(listMatchTypes).negativeOneToFalse() ||
+      this.getMatchGemTerra(listMatchTypes).negativeOneToFalse() ||
+      this.getMatchGemSWORD(listMatchTypes).negativeOneToFalse() ||
       this.getMatchGemFireSpirit(listMatchTypes).negativeOneToFalse() ||
       this.cuuDuongChanKinh(listMatchTypes.length - 1)
     );
@@ -125,7 +125,7 @@ class Grid {
 
   getMatchGemTerra(listMatchTypes) {
     if (!SEA_SPIRIT.isAlive() || SEA_SPIRIT.isFullMana()) return false;
-    return this.getIndexGem(listMatchTypes, [GemType.GREEN, GemType.YELLOW]);
+    return this.getIndexGem(listMatchTypes, [GemType.YELLOW, GemType.GREEN]);
   }
 
   getMatchGemAirSpirit(listMatchTypes) {
