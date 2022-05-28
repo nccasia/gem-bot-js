@@ -408,6 +408,10 @@ function StartTurn(param) {
   setTimeout(function () {
     visualizer.snapShot();
     currentPlayerId = param.getInt("currentPlayerId");
+    if (!isBotTurn()) {
+      trace("not isBotTurn");
+      return;
+    }
 
     if (strategy) {
       strategy.playTurn();
@@ -591,7 +595,7 @@ function HandleGems(paramz) {
 
   grid.updateGems(gemCode, gemModifiers);
 
-  // setTimeout(function () { SendFinishTurn(false) }, delaySwapGem);
+  setTimeout(function () { SendFinishTurn(false) }, delaySwapGem);
 }
 
 function HandleHeroes(paramz) {
