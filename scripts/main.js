@@ -408,10 +408,6 @@ function StartTurn(param) {
   setTimeout(function () {
     visualizer.snapShot();
     currentPlayerId = param.getInt("currentPlayerId");
-    if (!isBotTurn()) {
-      trace("not isBotTurn");
-      return;
-    }
 
     if (strategy) {
       strategy.playTurn();
